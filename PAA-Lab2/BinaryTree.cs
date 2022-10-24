@@ -5,6 +5,7 @@ namespace PAA_Lab2
     public class BinaryTree<T> where T : IComparable
     {
         private Node<T> _root;
+        private static int s_balancingStep;
 
         private const string LeftTurn = "└";
         private const string RightTurn = "┌";
@@ -27,7 +28,8 @@ namespace PAA_Lab2
         }
         public void Balance()
         {
-            _root = BalanceInternal(_root);
+            s_balancingStep = 0;
+            _root = BalanceInternal(_root, null);
         }
         public override string ToString()
         {
@@ -70,33 +72,36 @@ namespace PAA_Lab2
             }
             CorrectHeight(node);
         }
-        private Node<T> BalanceInternal(Node<T> node)
+        private Node<T> BalanceInternal(Node<T> node, Node<T>? parent)
         {
             if (node.Right != null)
             {
-                node.Right = BalanceInternal(node.Right);
+                node.Right = BalanceInternal(node.Right, node);
             }
             if (node.Left != null)
             {
-                node.Left = BalanceInternal(node.Left);
+                node.Left = BalanceInternal(node.Left, node);
             }
-            while (GetBalanceFactor(node) > 1)
+            Node<T> newNode = node;
+            while (GetBalanceFactor(newNode) > 1)
             {
-                if (GetBalanceFactor(node.Right) < 0)
+                if (GetBalanceFactor(newNode.Right!) < 0)
                 {
-                    node.Right = RotateRight(node.Right);
+                    newNode.Right = RotateRight(newNode.Right!);
                 }
-                node = RotateLeft(node);
+                newNode = ReplaceChildOfNodeOrRoot(parent, newNode, RotateLeft(newNode));
+                WriteBalancingStep();
             }
-            while (GetBalanceFactor(node) < -1)
+            while (GetBalanceFactor(newNode) < -1)
             {
-                if (GetBalanceFactor(node.Left) > 0)
+                if (GetBalanceFactor(newNode.Left!) > 0)
                 {
-                    node.Left = RotateLeft(node.Left);
+                    newNode.Left = RotateLeft(newNode.Left!);
                 }
-                node = RotateRight(node);
+                newNode = ReplaceChildOfNodeOrRoot(parent, newNode, RotateRight(newNode));
+                WriteBalancingStep();
             }
-            return node;
+            return newNode;
         }
         private void CorrectHeight(Node<T> node)
         {
@@ -110,10 +115,25 @@ namespace PAA_Lab2
         {
             return node == null ? 0 : node.Height;
         }
+        private Node<T> ReplaceChildOfNodeOrRoot(Node<T>? parent, Node<T> child, Node<T> newChild)
+        {
+            if (parent != null)
+            {
+                if (parent.Left == child)
+                {
+                    parent.Left = newChild;
+                    return parent.Left;
+                }
+                parent.Right = newChild;
+                return parent.Right;
+            }
+            _root = newChild;
+            return _root;
+        }
         private Node<T> RotateLeft(Node<T> node)
         {
-            Node<T> right = node.Right;
-            node.Right = right.Left;
+            Node<T> right = node.Right!;
+            node.Right = right!.Left;
             right.Left = node;
             CorrectHeight(node);
             CorrectHeight(right);
@@ -121,8 +141,8 @@ namespace PAA_Lab2
         }
         private Node<T> RotateRight(Node<T> node)
         {
-            Node<T> left = node.Left;
-            node.Left = left.Right;
+            Node<T> left = node.Left!;
+            node.Left = left!.Right;
             left.Right = node;
             CorrectHeight(node);
             CorrectHeight(left);
@@ -140,6 +160,13 @@ namespace PAA_Lab2
             {
                 ToStringInternal(sb, prefix + (isLeft ? Space : LineSpace), node.Left, true);
             }
+        }
+        private void WriteBalancingStep()
+        {
+            Console.WriteLine($"Step {++s_balancingStep}:");
+            Writer.WriteDivider();
+            Console.WriteLine(this);
+            Writer.WriteDivider();
         }
     }
 }
