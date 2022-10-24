@@ -24,7 +24,6 @@
             Console.WriteLine("Balancing binary tree:");
             Writer.WriteDivider();
             unsortedValuesTree.Balance();
-            Writer.WriteDivider();
 
             Console.WriteLine("Balanced binary tree:");
             Writer.WriteDivider();
