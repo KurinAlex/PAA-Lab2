@@ -5,7 +5,7 @@ namespace PAA_Lab2
     public class BinaryTree<T> where T : IComparable
     {
         private Node<T> _root;
-        private static int s_balancingStep;
+        private int _balancingStep;
 
         private const string LeftTurn = "└";
         private const string RightTurn = "┌";
@@ -28,7 +28,7 @@ namespace PAA_Lab2
         }
         public void Balance()
         {
-            s_balancingStep = 0;
+            _balancingStep = 0;
             BalanceInternal(_root, null);
         }
         public override string ToString()
@@ -165,7 +165,7 @@ namespace PAA_Lab2
         }
         private void WriteBalancingStep(string rotationType)
         {
-            Console.WriteLine($"Step {++s_balancingStep} ({rotationType} rotation):");
+            Console.WriteLine($"Step {++_balancingStep} ({rotationType} rotation):");
             Writer.WriteDivider();
             Console.WriteLine(this);
             Writer.WriteDivider();
