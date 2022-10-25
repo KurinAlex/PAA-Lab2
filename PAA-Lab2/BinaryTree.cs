@@ -5,7 +5,6 @@ namespace PAA_Lab2
     public class BinaryTree<T> where T : IComparable
     {
         private Node<T> _root;
-        private int _balancingStep;
 
         private const string LeftTurn = "└";
         private const string RightTurn = "┌";
@@ -28,8 +27,8 @@ namespace PAA_Lab2
         }
         public void Balance()
         {
-            _balancingStep = 0;
-            BalanceInternal(_root, null);
+            int balancingStep = 0;
+            BalanceInternal(_root, null, ref balancingStep);
         }
         public override string ToString()
         {
@@ -70,52 +69,40 @@ namespace PAA_Lab2
                     AddInternal(node.Right, value);
                 }
             }
-            CorrectHeight(node);
+            node.CorrectHeight();
         }
-        private void BalanceInternal(Node<T> node, Node<T>? parent)
+        private void BalanceInternal(Node<T> node, Node<T>? parent, ref int balancingStep)
         {
-            if (node.Right != null)
-            {
-                BalanceInternal(node.Right, node);
-            }
-            if (node.Left != null)
-            {
-                BalanceInternal(node.Left, node);
-            }
-            while (GetBalanceFactor(node) > 1)
+            while (node.GetBalanceFactor() > 1)
             {
                 bool doubleRotate = false;
-                if (GetBalanceFactor(node.Right!) < 0)
+                if (node.Right!.GetBalanceFactor() < 0)
                 {
                     node.Right = RotateRight(node.Right!);
                     doubleRotate = true;
                 }
                 node = ReplaceChildOfNodeOrRoot(parent, node, RotateLeft(node));
-                WriteBalancingStep(doubleRotate ? "right-left" : "left", node);
+                WriteBalancingStep(doubleRotate ? "right-left" : "left", node, ref balancingStep);
             }
-            while (GetBalanceFactor(node) < -1)
+            while (node.GetBalanceFactor() < -1)
             {
                 bool doubleRotate = false;
-                if (GetBalanceFactor(node.Left!) > 0)
+                if (node.Left!.GetBalanceFactor() > 0)
                 {
                     node.Left = RotateLeft(node.Left!);
                     doubleRotate = true;
                 }
                 node = ReplaceChildOfNodeOrRoot(parent, node, RotateRight(node));
-                WriteBalancingStep(doubleRotate ? "left-right" : "right", node);
+                WriteBalancingStep(doubleRotate ? "left-right" : "right", node, ref balancingStep);
             }
-        }
-        private void CorrectHeight(Node<T> node)
-        {
-            node.Height = 1 + Math.Max(GetHeight(node.Left), GetHeight(node.Right));
-        }
-        private int GetBalanceFactor(Node<T> node)
-        {
-            return GetHeight(node.Right) - GetHeight(node.Left);
-        }
-        private int GetHeight(Node<T>? node)
-        {
-            return node == null ? 0 : node.Height;
+            if (node.Right != null)
+            {
+                BalanceInternal(node.Right, node, ref balancingStep);
+            }
+            if (node.Left != null)
+            {
+                BalanceInternal(node.Left, node, ref balancingStep);
+            }
         }
         private Node<T> ReplaceChildOfNodeOrRoot(Node<T>? parent, Node<T> child, Node<T> newChild)
         {
@@ -137,8 +124,8 @@ namespace PAA_Lab2
             Node<T> right = node.Right!;
             node.Right = right!.Left;
             right.Left = node;
-            CorrectHeight(node);
-            CorrectHeight(right);
+            node.CorrectHeight();
+            right.CorrectHeight();
             return right;
         }
         private Node<T> RotateRight(Node<T> node)
@@ -146,8 +133,8 @@ namespace PAA_Lab2
             Node<T> left = node.Left!;
             node.Left = left!.Right;
             left.Right = node;
-            CorrectHeight(node);
-            CorrectHeight(left);
+            node.CorrectHeight();
+            left.CorrectHeight();
             return left;
         }
         private void ToStringInternal(StringBuilder sb, string prefix, Node<T> node, bool isLeft)
@@ -163,9 +150,9 @@ namespace PAA_Lab2
                 ToStringInternal(sb, prefix + (isLeft ? Space : LineSpace), node.Left, true);
             }
         }
-        private void WriteBalancingStep(string rotationType, Node<T> node)
+        private void WriteBalancingStep(string rotationType, Node<T> node, ref int balancingStep)
         {
-            Console.WriteLine($"Step {++_balancingStep} ({rotationType} rotation on {node.Value}):");
+            Console.WriteLine($"Step {++balancingStep} ({rotationType} rotation on {node.Value}):");
             Writer.WriteDivider();
             Console.Write(this);
             Writer.WriteDivider();
