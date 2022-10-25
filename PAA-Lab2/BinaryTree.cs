@@ -167,7 +167,7 @@ namespace PAA_Lab2
         {
             Console.WriteLine($"Step {++_balancingStep} ({rotationType} rotation on {node.Value}):");
             Writer.WriteDivider();
-            Console.WriteLine(this);
+            Console.Write(this);
             Writer.WriteDivider();
         }
     }
