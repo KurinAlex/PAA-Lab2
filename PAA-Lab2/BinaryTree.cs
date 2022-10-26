@@ -4,7 +4,7 @@ namespace PAA_Lab2
 {
     public class BinaryTree<T> where T : IComparable
     {
-        private Node<T> _root;
+        private TreeNode _root;
 
         private const string LeftTurn = "└";
         private const string RightTurn = "┌";
@@ -45,7 +45,7 @@ namespace PAA_Lab2
             return sb.ToString();
         }
 
-        private void AddInternal(Node<T> node, T value)
+        private void AddInternal(TreeNode node, T value)
         {
             if (value.CompareTo(node.Value) < 0)
             {
@@ -71,7 +71,7 @@ namespace PAA_Lab2
             }
             node.CorrectHeight();
         }
-        private void BalanceInternal(Node<T> node, Node<T>? parent, ref int balancingStep)
+        private void BalanceInternal(TreeNode node, TreeNode? parent, ref int balancingStep)
         {
             while (node.GetBalanceFactor() > 1)
             {
@@ -104,40 +104,40 @@ namespace PAA_Lab2
                 BalanceInternal(node.Left, node, ref balancingStep);
             }
         }
-        private Node<T> ReplaceChildOfNodeOrRoot(Node<T>? parent, Node<T> child, Node<T> newChild)
+        private TreeNode ReplaceChildOfNodeOrRoot(TreeNode? parent, TreeNode child, TreeNode newChild)
         {
-            if (parent != null)
+            if (parent == null)
             {
-                if (parent.Left == child)
-                {
-                    parent.Left = newChild;
-                    return parent.Left;
-                }
-                parent.Right = newChild;
-                return parent.Right;
+                _root = newChild;
+                return _root;
             }
-            _root = newChild;
-            return _root;
+            if (parent.Left == child)
+            {
+                parent.Left = newChild;
+                return parent.Left;
+            }
+            parent.Right = newChild;
+            return parent.Right;
         }
-        private Node<T> RotateLeft(Node<T> node)
+        private TreeNode RotateLeft(TreeNode node)
         {
-            Node<T> right = node.Right!;
+            TreeNode right = node.Right!;
             node.Right = right!.Left;
             right.Left = node;
             node.CorrectHeight();
             right.CorrectHeight();
             return right;
         }
-        private Node<T> RotateRight(Node<T> node)
+        private TreeNode RotateRight(TreeNode node)
         {
-            Node<T> left = node.Left!;
+            TreeNode left = node.Left!;
             node.Left = left!.Right;
             left.Right = node;
             node.CorrectHeight();
             left.CorrectHeight();
             return left;
         }
-        private void ToStringInternal(StringBuilder sb, string prefix, Node<T> node, bool isLeft)
+        private void ToStringInternal(StringBuilder sb, string prefix, TreeNode node, bool isLeft)
         {
             if (node.Right != null)
             {
@@ -150,12 +150,39 @@ namespace PAA_Lab2
                 ToStringInternal(sb, prefix + (isLeft ? Space : LineSpace), node.Left, true);
             }
         }
-        private void WriteBalancingStep(string rotationType, Node<T> node, ref int balancingStep)
+        private void WriteBalancingStep(string rotationType, TreeNode node, ref int balancingStep)
         {
             Console.WriteLine($"Step {++balancingStep} ({rotationType} rotation on {node.Value}):");
             Writer.WriteDivider();
             Console.Write(this);
             Writer.WriteDivider();
+        }
+
+        private class TreeNode
+        {
+            public TreeNode(T value)
+            {
+                Value = value;
+                _height = 1;
+            }
+
+            public T Value { get; set; }
+            public TreeNode? Left { get; set; }
+            public TreeNode? Right { get; set; }
+            private int _height;
+
+            public void CorrectHeight()
+            {
+                _height = 1 + Math.Max(GetHeight(Left), GetHeight(Right));
+            }
+            public int GetBalanceFactor()
+            {
+                return GetHeight(Right) - GetHeight(Left);
+            }
+            private static int GetHeight(TreeNode? node)
+            {
+                return node == null ? 0 : node._height;
+            }
         }
     }
 }
