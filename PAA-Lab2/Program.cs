@@ -14,11 +14,18 @@
             Console.Write(unsortedValuesTree);
             Writer.WriteDivider();
 
-            Console.WriteLine("Binary tree with sorted values:");
+            var nodesArray = values.Prepend(rootValue).ToArray();
+            Console.WriteLine("Input heap:");
             Writer.WriteDivider();
-            HeapSorter.Sort(values);
-            BinaryTree<int> sortedValuesTree = new(rootValue, values);
-            Console.Write(sortedValuesTree);
+            var heap = BinaryTree<int>.CreateHeap(nodesArray);
+            Console.Write(heap);
+            Writer.WriteDivider();
+
+            Console.WriteLine("Heap after heap sort:");
+            Writer.WriteDivider();
+            HeapSorter.Sort(nodesArray);
+            heap = BinaryTree<int>.CreateHeap(nodesArray);
+            Console.Write(heap);
             Writer.WriteDivider();
 
             Console.WriteLine("Balancing binary tree:");

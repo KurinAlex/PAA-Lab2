@@ -12,6 +12,10 @@ namespace PAA_Lab2
         private const string LineSpace = "│    ";
         private const string Space = "     ";
 
+        public BinaryTree(T rootValue)
+        {
+            _root = new(rootValue);
+        }
         public BinaryTree(T rootValue, IEnumerable<T> values)
         {
             _root = new(rootValue);
@@ -29,6 +33,14 @@ namespace PAA_Lab2
         {
             int balancingStep = 0;
             BalanceInternal(_root, null, ref balancingStep);
+        }
+        public static BinaryTree<T> CreateHeap(IEnumerable<T> values)
+        {
+            var valuesArray = values.ToArray();
+            BinaryTree<T> tree = new(valuesArray[0]);
+            tree._root.Left = CreateHeapInternal(valuesArray, 1);
+            tree._root.Right = CreateHeapInternal(valuesArray, 2);
+            return tree;
         }
         public override string ToString()
         {
@@ -104,6 +116,12 @@ namespace PAA_Lab2
                 BalanceInternal(node.Left, node, ref balancingStep);
             }
         }
+        private static TreeNode? CreateHeapInternal(T[] values, int i)
+        {
+            return i >= values.Length
+                ? null
+                : new(values[i], CreateHeapInternal(values, 2 * i + 1), CreateHeapInternal(values, 2 * i + 2));
+        }
         private TreeNode ReplaceChildOfNodeOrRoot(TreeNode? parent, TreeNode child, TreeNode newChild)
         {
             if (parent == null)
@@ -160,10 +178,12 @@ namespace PAA_Lab2
 
         private class TreeNode
         {
-            public TreeNode(T value)
+            public TreeNode(T value, TreeNode? left = null, TreeNode? right = null)
             {
                 Value = value;
-                _height = 1;
+                Left = left;
+                Right = right;
+                CorrectHeight();
             }
 
             public T Value { get; set; }
